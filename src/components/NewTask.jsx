@@ -49,7 +49,13 @@ function NewTask() {
   const [search, setSearch] = useState("")
   const [status, setstatus] = useState("")
   const [Open, setOpen] = useState(true)
-  const [FormData, setFormData] = useState(true)
+  const [editEmployeeId, setEditEmployeeId] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    department: '',
+    salary: '',
+    experience: '',
+  });
 
   const handleSearch = (e) => {
     const value = e.target.value
@@ -119,22 +125,82 @@ function NewTask() {
     setEmployee(delteEmployee)
 
   }
+
+  // 2. Update state continuously as the user types
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  }
+
   function handleSubmit(event) {
-    // 1. Prevent the browser from reloading the page
-    event.preventDefault(); 
+    // 3. Prevent page refresh and access state data directly
+    event.preventDefault();
+    console.log("Submitted Values:", formData);
+    setEmployee((prevEmployee) => [
+      ...prevEmployee,
+      { ...formData, id: Date.now() }
+    ]);
 
-    // // 2. Extract values using the FormData API
-    // const formData = new FormData(event.currentTarget);
-    // debugger;
-    // const salary = formData.get("salary");
-    // const name = formData.get("name");
-    // const Department = formData.get("Department");
-    // const Experience = formData.get("experience");
+    setFormData({
+      name: '',
+      department: '',
+      salary: '',
+      experience: '',
+    });
 
+    setOpen(true);
+  }
 
+  const Clearform = () => {
+    setFormData({
+      name: '',
+      department: '',
+      salary: '',
+      experience: '',
+    });
+    setOpen(true);
+  }
 
-    setOpen(true)
-    
+  const handleEdit = (e) => {
+    const valueEdit = e.target.value
+    setEditEmployeeId(valueEdit);
+    const editEmployee = employee.find((e) => e.id == valueEdit)
+    setFormData({
+      name: editEmployee.name,
+      department: editEmployee.department,
+      salary: editEmployee.salary,
+      experience: editEmployee.experience
+    });
+    setOpen(false);
+  }
+
+  const UpdateForm = (e) => {
+    e.preventDefault();
+    const updatedEmployee = employee.filter((item) => item.id == editEmployeeId);
+
+    debugger;
+    setEmployee((prevEmployee) => [
+      ...prevEmployee,
+      {
+        ...[
+          updatedEmployee.name,
+          updatedEmployee.department,
+          updatedEmployee.salary,
+          updatedEmployee.experience
+
+        ], id: Date.now()
+      }
+    ]);
+    setFormData({
+      name: '',
+      department: '',
+      salary: '',
+      experience: '',
+    });
+    setOpen(true);
   }
 
   return (
@@ -209,6 +275,11 @@ function NewTask() {
                   value={item.id}
                   onClick={(e) => handleDelete(e)}
                 >[Delete]</button>
+                <button
+                  className="bg-sky-400 text-white p-2 m-2 w-20 rounded-md"
+                  value={item.id}
+                  onClick={(e) => handleEdit(e)}
+                >[Edit]</button>
               </p>
             )
           })) : <p className="p-2 m-1 bg-amber-900 rounded-md text-white">No employees found</p>}</div>
@@ -216,60 +287,98 @@ function NewTask() {
         :
         <div>
           <form action="save" onSubmit={handleSubmit}>
-            <div 
-            className="bg-emerald-300 p-2 rounded-2xl m-2 flex-2 "
+            <div
+              className="bg-emerald-300 p-2 rounded-2xl m-2 flex-2 "
             >
               <label htmlFor="name"
-              className="flex mt-1"
+                className="flex mt-1"
               >
                 Name: -</label>
-              <input 
-              type="text" 
-              name="name" 
-              id="txtname"
-               className="border border-amber-400 rounded-md p-1"
-               />
-               <label 
-               htmlFor="Deparment"
-               className="flex mt-1"
-               >Deparmenet:- </label>
-              <select name="Department" id="ddldepartment">
-                {employee.map((item)=>(
-                  <option key={item.id} value={item.id} >{item.department}</option>
+              <input
+                type="text"
+                name="name"
+                id="txtname"
+                value={formData.name}
+                onChange={handleChange}
+                className="border border-amber-400 rounded-md p-1"
+                required
+              />
+              <label
+                htmlFor="Deparment"
+                className="flex mt-1"
+              >Deparmenet:- </label>
+              {/* <select name="Department" id="ddldepartment">
+                {employee.map((item) => (
+                  <option 
+                  key={item.id}   
+                  value={formData.department}
+                  onChange={handleChange}
+                 >{item.department}</option>
                 ))}
+              </select> */}
+              <select
+                name="department"
+                id="ddldepartment"
+                value={formData.department}
+                onChange={handleChange}
+                className="border border-amber-400 rounded-md p-1"
+                required
+              >
+                {employee.map((item) => (
+                  <option
+                    key={item.id}
+                    value={item.department}
+                  >
+                    {item.department}
+                  </option>
+                ))}
+              
               </select>
-               <label 
-               htmlFor="salary"
-               className="flex mt-1"
-               >salary : - </label>
-               <input 
-               type="number" 
-               name="salary" 
-               id="txtsalary" 
-               className="border border-amber-400 rounded-md p-1 flex"
-               />
+              <label
+                htmlFor="salary"
+                className="flex mt-1"
+              >salary : - </label>
+              <input
+                type="number"
+                name="salary"
+                id="txtsalary"
+                value={formData.salary}
+                onChange={handleChange}
+                className="border border-amber-400 rounded-md p-1 flex"
+                required
+              />
 
-               <label 
-               htmlFor="experience"
-               className="flex mt-1"
-               >Experience: -</label>
-               <input 
-               type="number" 
-               name="experience" 
-               id="txtexperience" 
-            className="border border-amber-400 rounded-md p-1 flex"
-               />
+              <label
+                htmlFor="experience"
+                className="flex mt-1"
+              >Experience: -</label>
+              <input
+                type="number"
+                name="experience"
+                id="txtexperience"
+                value={formData.experience}
+                onChange={handleChange}
+                className="border border-amber-400 rounded-md p-1 flex"
+                required
+              />
 
               <button
                 className="bg-olive-800 text-white p-2 m-2 w-20 rounded-md"
-               type="submit"
+                type="submit"
               >
                 Save
               </button>
               <button
                 className="bg-olive-800 text-white p-2 m-2 w-20 rounded-md"
+                type="submit"
+                onClick={(e) => UpdateForm(e)}
+              >
+                Update
+              </button>
+              <button
+                className="bg-olive-800 text-white p-2 m-2 w-20 rounded-md"
                 value={"cancel"}
-                onClick={() => setOpen(true)}
+                onClick={() => Clearform()}
               >
                 Cancel
               </button>
