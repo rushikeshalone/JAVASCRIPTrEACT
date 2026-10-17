@@ -7,6 +7,7 @@ import Uncontrooled from './components/Uncontrooled.jsx'
 import Task4 from './components/Task4.jsx'
 import NewTask from './components/NewTask.jsx'
 import Q2 from './components/Q2.jsx'
+import { Q3 } from './components/Q3.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')).render(
     {/* <Uncontrooled / > */}
     {/* <Task4 /> */}
     {/* <NewTask /> */}
-    <Q2 />
+    {/* <Q2 /> */}
+    <Q3 />
   </StrictMode>,
 )

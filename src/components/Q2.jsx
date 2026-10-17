@@ -12,29 +12,62 @@ const Q2 = () => {
         { id: 7, name: "Speaker", category: "Audio", price: 5000, stock: 0 },
         { id: 8, name: "Tablet", category: "Electronics", price: 25000, stock: 7 }
     ];
-
-    const [Products, setProducts] = useState("all")
+ const categories = [...new Set(productsAll.map(product => product.category))];
+    const Stocks = ["All","In Stock","Out of Stock"]
+    const [Products, setProducts] = useState(productsAll)
     const [status, setStatus] = useState("all");
     const [Search, setSearch] = useState("");
-
-    const categories = [...new Set(productsAll.map(product => product.category))];
-    const Stocks = ["All","In Stock","Out of Stock"]
-    const AllFilter = (SearchValue, ddlvalue) => {
-
-        const ddlFilter = productsAll.filter(item)
-        {
+    const [Stock, setStock] = useState(Stocks);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4;
 
 
 
-        }
+
+    const AllFilter = (SearchValue, ddlvalue,ddlstock) => {
+
+        const ddlstockFilter = productsAll.filter((item) => {
+            if (ddlstock === "all") {
+                return item;
+            } else if (ddlstock === "In Stock") {
+                return item.stock > 0;
+            } else if (ddlstock === "Out of Stock") {
+                return item.stock === 0;
+            } else {
+                return item.category === ddlvalue;
+            }
+
+        });
+
+        const searchFilter = productsAll.filter((item) => {
+            return item.name.toLowerCase().includes(SearchValue.toLowerCase());
+        });
+
+        const ddlFilter = productsAll.filter((item) => {
+            if (ddlvalue === "all") {
+                return item && item.name.toLowerCase().includes(SearchValue.toLowerCase()) && ddlstockFilter;
+            } else {
+                return item.category === ddlvalue;
+            }
+        });
+        
+        return searchFilter && ddlstockFilter && ddlFilter;
 
     }
+
+    const handleDelete = (id) => {
+        const updatedProducts = Products.filter((item) => item.id !== id);
+        setProducts(updatedProducts);
+    }   
 
     const handleSearch = (e) => {
-
+        debugger;
         const Searchvalue = e.target.value;
         setSearch(Searchvalue)
+      setProducts(AllFilter(Searchvalue, status, Stock));
     }
+
+
 
     return (
         <>
@@ -46,20 +79,20 @@ const Q2 = () => {
                     className="bg-amber-100 border border-orange-600 rounded-2xl w-80 p-2 m-3"
                 />
 
-                <select className="bg-rose-600 p-2 rounded-2xl " name="ddlcatery" id="ddlcategory">
+                <select className="bg-rose-600 p-2 rounded-2xl " onChange={(e) => setStatus(e.target.value)} name="ddlcatery" id="ddlcategory">
                     <option value="all" >all</option>
                     {categories.map((items) => (
                         <option className=" border border-orange-600 rounded-2xl w-80 p-2 m-3 hover:bg-amber-300" key={items} value={items}>{items}</option>
                     ))}
                 </select>
 
-                    <select className="bg-rose-600 p-2 rounded-2xl " name="ddlcatery" id="ddlcategory">
+                    <select className="bg-rose-600 p-2 rounded-2xl " onChange={(e) => setStock(e.target.value)} name="ddlcatery" id="ddlcategory">
                     <option value="all" >all</option>
-                    {Stocks.map((items) => (
+                    {Stock.map((items) => (
                         <option className=" border border-orange-600 rounded-2xl w-80 p-2 m-3 hover:bg-amber-300" key={items} value={items}>{items}</option>
                     ))}
                 </select>
-                {productsAll.map((item) => {
+                {Products.map((item) => {
                     return <p key={item.id} className="p-2 m-1 bg-amber-900 rounded-md text-white">
                         {item.name}  |
                         <span className="mx-3">{item.category}</span>
@@ -69,13 +102,9 @@ const Q2 = () => {
                         |<button
                             className="bg-sky-400 text-white p-2 m-2 w-20 rounded-md"
                             value={item.id}
-                            onClick={(e) => handleDelete(e)}
+                            onClick={(e) => handleDelete(item.id)}
                         >[Delete]</button>
-                        <button
-                            className="bg-sky-400 text-white p-2 m-2 w-20 rounded-md"
-                            value={item.id}
-                            onClick={(e) => handleEdit(e)}
-                        >[Edit]</button>
+                        
                     </p>
                 })}
             </div>
